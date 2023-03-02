@@ -29,6 +29,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
+import os
+import sys
+import inspect
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir) 
+
 from sg2im.data import imagenet_deprocess_batch
 from sg2im.data.coco import CocoSceneGraphDataset, coco_collate_fn
 from sg2im.data.vg import VgSceneGraphDataset, vg_collate_fn
@@ -41,14 +49,15 @@ from sg2im.utils import timeit, bool_flag, LossManager
 
 torch.backends.cudnn.benchmark = True
 
-VG_DIR = os.path.expanduser('datasets/vg')
+# VG_DIR = os.path.expanduser('datasets/vg')
+VG_DIR = os.path.expanduser('datasets/g2p')
 COCO_DIR = os.path.expanduser('datasets/coco')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--dataset', default='coco', choices=['vg', 'coco'])
+parser.add_argument('--dataset', default='vg', choices=['vg', 'coco'])
 
 # Optimization hyperparameters
-parser.add_argument('--batch_size', default=32, type=int)
+parser.add_argument('--batch_size', default=16, type=int)
 parser.add_argument('--num_iterations', default=1000000, type=int)
 parser.add_argument('--learning_rate', default=1e-4, type=float)
 
@@ -56,7 +65,7 @@ parser.add_argument('--learning_rate', default=1e-4, type=float)
 parser.add_argument('--eval_mode_after', default=100000, type=int)
 
 # Dataset options common to both VG and COCO
-parser.add_argument('--image_size', default='64,64', type=int_tuple)
+parser.add_argument('--image_size', default='256,256', type=int_tuple)
 parser.add_argument('--num_train_samples', default=None, type=int)
 parser.add_argument('--num_val_samples', default=1024, type=int)
 parser.add_argument('--shuffle_val', default=True, type=bool_flag)
@@ -68,7 +77,7 @@ parser.add_argument('--vg_image_dir', default=os.path.join(VG_DIR, 'images'))
 parser.add_argument('--train_h5', default=os.path.join(VG_DIR, 'train.h5'))
 parser.add_argument('--val_h5', default=os.path.join(VG_DIR, 'val.h5'))
 parser.add_argument('--vocab_json', default=os.path.join(VG_DIR, 'vocab.json'))
-parser.add_argument('--max_objects_per_image', default=10, type=int)
+parser.add_argument('--max_objects_per_image', default=30, type=int)
 parser.add_argument('--vg_use_orphaned_objects', default=True, type=bool_flag)
 
 # COCO-specific options

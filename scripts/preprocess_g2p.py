@@ -30,12 +30,12 @@ fully-connected.
 """
 
 
-VG_DIR = 'datasets/vg'
+VG_DIR = 'datasets/g2p'
 
 parser = argparse.ArgumentParser()
 
 # Input data
-parser.add_argument('--splits_json', default='sg2im/data/vg_splits.json')
+parser.add_argument('--splits_json', default='datasets/g2p/splits.json')
 parser.add_argument('--images_json',
     default=os.path.join(VG_DIR, 'image_data.json'))
 parser.add_argument('--objects_json',
@@ -54,15 +54,15 @@ parser.add_argument('--min_image_size', default=200, type=int)
 parser.add_argument('--train_split', default='train')
 
 # Arguments for objects
-parser.add_argument('--min_object_instances', default=2000, type=int)
-parser.add_argument('--min_attribute_instances', default=2000, type=int)
-parser.add_argument('--min_object_size', default=32, type=int)
-parser.add_argument('--min_objects_per_image', default=3, type=int)
+parser.add_argument('--min_object_instances', default=0, type=int)
+parser.add_argument('--min_attribute_instances', default=0, type=int)
+parser.add_argument('--min_object_size', default=0, type=int)
+parser.add_argument('--min_objects_per_image', default=0, type=int)
 parser.add_argument('--max_objects_per_image', default=30, type=int)
 parser.add_argument('--max_attributes_per_image', default=30, type=int)
 
 # Arguments for relationships
-parser.add_argument('--min_relationship_instances', default=500, type=int)
+parser.add_argument('--min_relationship_instances', default=0, type=int)
 parser.add_argument('--min_relationships_per_image', default=1, type=int)
 parser.add_argument('--max_relationships_per_image', default=30, type=int)
 
@@ -76,6 +76,7 @@ def main(args):
   print('Loading image info from "%s"' % args.images_json)
   with open(args.images_json, 'r') as f:
     images = json.load(f)
+  images = list(images.values())
   image_id_to_image = {i['image_id']: i for i in images}
 
   with open(args.splits_json, 'r') as f:
@@ -90,7 +91,7 @@ def main(args):
   print('Loading objects from "%s"' % args.objects_json)
   with open(args.objects_json, 'r') as f:
     objects = json.load(f)
-
+  objects = list(objects.values())
   # Vocab for objects and relationships
   vocab = {}
   train_ids = splits[args.train_split]
@@ -99,7 +100,7 @@ def main(args):
   print('Loading attributes from "%s"' % args.attributes_json)
   with open(args.attributes_json, 'r') as f:
     attributes = json.load(f)
-
+  attributes = list(attributes.values())
   # Vocab for attributes
   create_attribute_vocab(args, train_ids, attributes, vocab)
 
@@ -110,7 +111,7 @@ def main(args):
   print('Loading relationshps from "%s"' % args.relationships_json)
   with open(args.relationships_json, 'r') as f:
     relationships = json.load(f)
-
+  relationships = list(relationships.values())
   create_rel_vocab(args, train_ids, relationships, object_id_to_obj,
                    rel_aliases, vocab)
 
@@ -165,7 +166,8 @@ def get_image_paths(image_id_to_image, image_ids):
   for image_id in image_ids:
     image = image_id_to_image[image_id]
     base, filename = os.path.split(image['url'])
-    path = os.path.join(os.path.basename(base), filename)
+    # path = os.path.join(os.path.basename(base), filename)
+    path = os.path.join('/home/sicong/sg2im_sicong/datasets/g2p/images', filename)
     paths.append(path)
   return paths
 
